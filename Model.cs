@@ -4,6 +4,7 @@ class Model
 {
     public class Game()
     {
+        static private int buffer = 1;
         static private int height = Console.WindowHeight - 1;
         static private int width = Console.WindowWidth - 1;
 
@@ -25,6 +26,52 @@ class Model
             player1 = new(player1StartPos, playerLength, "Player 1");
             player2 = new(player2StartPos, playerLength, "Player 2");
             ball = new(ballStartPos, ballStartVelocity);
+        }
+
+        public void Bounce()
+        {
+            bool bounce = false;
+            int[] ballPos = ball.GetNextPosition();
+
+            if (ballPos[1] <= buffer)
+            {
+                //bounced off the top
+                bounce = true;
+            }
+
+            if (ballPos[1] >= height)
+            {
+                //bounced off the bottom
+                bounce = true;
+            }
+
+            int[] player1Pos = player1.GetPosition();
+            if (ballPos[0] <= player1Pos[0])
+            {
+                if (ballPos[1] >= player1Pos[1] && ballPos[1] <= player1Pos[1] + player1.GetLength())
+                {
+                    //bounced off player 1
+                    bounce = true;
+                }
+            }
+
+            int[] player2Pos = player2.GetPosition();
+            if (ballPos[0] >= player2Pos[0])
+            {
+                if (ballPos[1] >= player2Pos[1] && ballPos[1] <= player2Pos[1] + player2.GetLength())
+                {
+                    //bounced off player 2
+                    bounce = true;
+                }
+            }
+
+            if (bounce)
+            {
+                double[] oldVelocity = ball.GetVelocity();
+                double[] newVelocity = [-1 * oldVelocity[0], -1 * oldVelocity[1]];
+
+                ball.SetVelocity(newVelocity);
+            }
         }
 
         public string? GetWinner()
@@ -118,6 +165,11 @@ class Model
             public void SetVelocity(double[] newVelocity)
             {
                 velocity = newVelocity;
+            }
+
+            public int[] GetNextPosition()
+            {
+                return [(int)(position[0] + velocity[0]), (int)(position[1] + velocity[1])];
             }
 
             public int[] GetPosition()
