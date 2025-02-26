@@ -1,11 +1,10 @@
-﻿namespace PSPong
+﻿namespace PSPong;
+
+class Program
 {
-    class Program
+    [STAThread]
+    static void Main(string[] args)
     {
-        [STAThread]
-        static void Main(string[] args)
-        {
-            //TO DO - everything
-        }
+        Model model = new();
     }
 }
