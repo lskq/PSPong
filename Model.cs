@@ -16,11 +16,11 @@ class Model
     static private int ballStartPosX = width / 2;
     static private int ballStartPosY = height / 2;
 
-    static private double[] ballStartVelocity = [1.0, 2.0];
+    static private double[] ballStartVelocity = [2.0, 1.0];
 
-    private Player player1;
-    private Player player2;
-    private Ball ball;
+    private Player player1 = new(player1StartPosX, playersStartPosY, playerLength, "Player 1");
+    private Player player2 = new(player2StartPosX, playersStartPosY, playerLength, "Player 2");
+    private Ball ball = new(ballStartPosX, ballStartPosY, ballStartVelocity);
 
     public void Step(int player1Delta, int player2Delta)
     {
@@ -29,13 +29,6 @@ class Model
         ball.Move();
 
         CheckCollision();
-    }
-
-    public void SetUp()
-    {
-        player1 = new(player1StartPosX, playersStartPosY, playerLength, "Player 1");
-        player2 = new(player2StartPosX, playersStartPosY, playerLength, "Player 2");
-        ball = new(ballStartPosX, ballStartPosY, ballStartVelocity);
     }
 
     public void ResetBall()
@@ -104,7 +97,15 @@ class Model
         }
     }
 
-    public string? GetWinner()
+    public bool HasWinner()
+    {
+        if (player1.GetScore() >= winningScore || player2.GetScore() >= winningScore)
+        {
+            return true;
+        }
+        return false;
+    }
+    public string GetWinner()
     {
         if (player1.GetScore() >= winningScore)
         {
@@ -114,8 +115,10 @@ class Model
         {
             return player2.GetName();
         }
-
-        return null;
+        else
+        {
+            return "None";
+        }
     }
 
     public Player[] GetPlayers()

@@ -9,14 +9,12 @@ class Controller(Model model, View view)
 
     public void Play()
     {
-        string? winner = null;
         do
         {
             int[] input = GetPlayerMovement();
             model.Step(input[0], input[1]);
             view.Step();
-            winner = model.GetWinner();
-        } while (winner == null);
+        } while (!model.HasWinner());
 
         view.ShowVictoryMessage();
 
