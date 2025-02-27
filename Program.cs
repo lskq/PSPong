@@ -18,5 +18,7 @@ class Program
             view.Step();
             winner = model.GetWinner();
         } while (winner == null);
+
+        //view.TearDown();
     }
 }

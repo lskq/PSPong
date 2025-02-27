@@ -27,12 +27,12 @@ class View(Model model)
             {
                 Console.SetCursorPosition(x, oldY);
                 Console.Write(empty);
-                Console.SetCursorPosition(x, currentY + player.GetLength() - 1);
+                Console.SetCursorPosition(x, currentY + player.GetTail());
                 Console.Write(playerIcon);
             }
             else if (currentY < oldY)
             {
-                Console.SetCursorPosition(x, oldY + player.GetLength() - 1);
+                Console.SetCursorPosition(x, oldY + player.GetTail());
                 Console.Write(empty);
                 Console.SetCursorPosition(x, currentY);
                 Console.Write(playerIcon);

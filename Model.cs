@@ -8,11 +8,15 @@ class Model
 
     static private int playerLength = 3;
     static private int winningScore = 3;
+
     static private int player1StartPosX = 1;
-    static private int player2StartPosX = width;
+    static private int player2StartPosX = width - 1;
     static private int playersStartPosY = (height / 2) - 1;
+
     static private int ballStartPosX = width / 2;
     static private int ballStartPosY = height / 2;
+
+    static private double[] ballStartVelocity = [1.0, 2.0];
 
     private Player player1;
     private Player player2;
@@ -31,14 +35,13 @@ class Model
     {
         player1 = new(player1StartPosX, playersStartPosY, playerLength, "Player 1");
         player2 = new(player2StartPosX, playersStartPosY, playerLength, "Player 2");
-
-        NewBall();
+        ball = new(ballStartPosX, ballStartPosY, ballStartVelocity);
     }
 
-    public void NewBall()
+    public void ResetBall()
     {
-        double[] ballStartVelocity = [1.0, 0.0];
-        ball = new(ballStartPosX, ballStartPosY, ballStartVelocity);
+        ball.SetPosition(ballStartPosX, ballStartPosY);
+        ball.SetVelocity(ballStartVelocity);
     }
 
     public void CheckCollision()
@@ -47,22 +50,21 @@ class Model
         int ballPosX = ball.GetNextX();
         int ballPosY = ball.GetNextY();
 
-        if (ballPosY <= buffer)
+        if (buffer >= ballPosY || ballPosY >= height)
         {
-            //bounced off the top
-            bounce = true;
+            //bounced off the top or bottom
+            double[] oldVelocity = ball.GetVelocity();
+            double[] newVelocity = [oldVelocity[0], -1 * oldVelocity[1]];
+
+            ball.SetVelocity(newVelocity);
+
+            return;
         }
 
-        if (ballPosY >= height)
+        if (ballPosX <= player1.GetX())
         {
-            //bounced off the bottom
-            bounce = true;
-        }
-
-        int[] player1Pos = [player1.GetX(), player1.GetY()];
-        if (ballPosX <= player1Pos[0])
-        {
-            if (ballPosY >= player1Pos[1] && ballPosY <= player1Pos[1] + player1.GetLength())
+            int y = player1.GetY();
+            if (y <= ballPosY && ballPosY <= y + player1.GetTail())
             {
                 //bounced off player 1
                 bounce = true;
@@ -71,15 +73,15 @@ class Model
             {
                 //scored on player 1
                 player2.IncrementScore();
-                NewBall();
+                ResetBall();
                 return;
             }
         }
 
-        int[] player2Pos = [player2.GetX(), player2.GetY()];
-        if (ballPosX >= player2Pos[0])
+        if (ballPosX >= player2.GetX())
         {
-            if (ballPosY >= player2Pos[1] && ballPosY <= player2Pos[1] + player2.GetLength())
+            int y = player2.GetY();
+            if (y <= ballPosY && ballPosY <= y + player2.GetTail())
             {
                 //bounced off player 2
                 bounce = true;
@@ -88,7 +90,7 @@ class Model
             {
                 //scored on player 2
                 player1.IncrementScore();
-                NewBall();
+                ResetBall();
                 return;
             }
         }
@@ -96,7 +98,7 @@ class Model
         if (bounce)
         {
             double[] oldVelocity = ball.GetVelocity();
-            double[] newVelocity = [-1 * oldVelocity[0], -1 * oldVelocity[1]];
+            double[] newVelocity = [-1 * oldVelocity[0], oldVelocity[1]];
 
             ball.SetVelocity(newVelocity);
         }
@@ -176,9 +178,15 @@ class Model
             return oldY;
         }
 
+
         public int GetLength()
         {
             return length;
+        }
+
+        public int GetTail()
+        {
+            return length - 1;
         }
 
         public string GetName()
@@ -206,6 +214,13 @@ class Model
             oldY = y;
             x += velocity[0];
             y += velocity[1];
+        }
+
+        public void SetPosition(int newX, int newY)
+        {
+            x = newX;
+            y = newY;
+
         }
 
         public void SetVelocity(double[] newVelocity)
