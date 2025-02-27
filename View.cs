@@ -1,3 +1,5 @@
+using System.Windows.Input;
+
 namespace PSPong;
 
 class View(Model model)
@@ -56,6 +58,17 @@ class View(Model model)
         UpdateScore();
 
         Thread.Sleep(stepRate);
+    }
+
+    public void ShowVictoryMessage()
+    {
+        string winner = model.GetWinner();
+
+        string victoryMessage = $"{winner} wins!";
+
+        Console.SetCursorPosition((width / 2) - victoryMessage.Length / 2, height / 2);
+        Console.WriteLine(victoryMessage);
+
     }
 
     public void UpdateScore()

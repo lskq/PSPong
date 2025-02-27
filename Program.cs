@@ -11,14 +11,7 @@ class Program
         View view = new View(model);
         view.SetUp();
 
-        string? winner = null;
-        do
-        {
-            model.Step(0, 0);
-            view.Step();
-            winner = model.GetWinner();
-        } while (winner == null);
-
-        //view.TearDown();
+        Controller controller = new Controller(model, view);
+        controller.Play();
     }
 }
