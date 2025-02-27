@@ -5,16 +5,18 @@ class Program
     [STAThread]
     static void Main(string[] args)
     {
-        Model game = new Model();
+        Model model = new Model();
+        model.SetUp();
 
-        game.SetUp();
+        View view = new View(model);
+        view.SetUp();
 
         string? winner = null;
-
         do
         {
-            game.Play(0, 0);
-            winner = game.GetWinner();
+            model.Step(0, 0);
+            view.Step();
+            winner = model.GetWinner();
         } while (winner == null);
     }
 }
