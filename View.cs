@@ -8,7 +8,7 @@ class View(Model model)
     static char ballIcon = '@';
     static char empty = ' ';
 
-    static int stepRate = 50;
+    static int rate = 50;
 
     int height = model.GetHeight();
     int width = model.GetWidth();
@@ -25,16 +25,18 @@ class View(Model model)
             int oldY = player.GetOldY();
             int currentY = player.GetY();
 
+            int tail = player.GetLength() - 1;
+
             if (currentY > oldY)
             {
                 Console.SetCursorPosition(x, oldY);
                 Console.Write(empty);
-                Console.SetCursorPosition(x, currentY + player.GetTail());
+                Console.SetCursorPosition(x, currentY + tail);
                 Console.Write(playerIcon);
             }
             else if (currentY < oldY)
             {
-                Console.SetCursorPosition(x, oldY + player.GetTail());
+                Console.SetCursorPosition(x, oldY + tail);
                 Console.Write(empty);
                 Console.SetCursorPosition(x, currentY);
                 Console.Write(playerIcon);
@@ -57,7 +59,7 @@ class View(Model model)
 
         UpdateScore();
 
-        Thread.Sleep(stepRate);
+        Thread.Sleep(rate);
     }
 
     public void ShowEndMessage()

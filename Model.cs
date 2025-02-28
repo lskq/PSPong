@@ -3,7 +3,7 @@ namespace PSPong;
 class Model
 {
     static private int buffer = 1;
-    static private int height = Console.WindowHeight - buffer - 1;
+    static private int height = Console.WindowHeight - 1;
     static private int width = Console.WindowWidth - 1;
 
     static private int playerLength = 3;
@@ -16,7 +16,7 @@ class Model
     static private int ballStartPosX = width / 2;
     static private int ballStartPosY = height / 2;
 
-    static private double[] ballStartVelocity = [2.0, 1.0];
+    static private double[] ballStartVelocity = [2.0, 0.0];
 
     private Player player1 = new(player1StartPosX, playersStartPosY, playerLength, "Player 1");
     private Player player2 = new(player2StartPosX, playersStartPosY, playerLength, "Player 2");
@@ -38,6 +38,23 @@ class Model
 
     public void MoveBall()
     {
+        int ballX = ball.GetX();
+
+        if (ballX == 0)
+        {
+            //scored on player 1
+            player2.IncrementScore();
+            ball.Reset();
+            return;
+        }
+        else if (ballX == width)
+        {
+            //scored on player2
+            player1.IncrementScore();
+            ball.Reset();
+            return;
+        }
+
         int ballNextX = ball.GetNextX();
         int ballNextY = ball.GetNextY();
 
@@ -51,10 +68,18 @@ class Model
             return;
         }
 
-        if (ballNextY < buffer || ballNextY > height || ballNextX < 0 || ballNextX > width)
-        {
-            ball.SetBounce(true);
+        int player1X = player1.GetX();
+        int player1Y = player1.GetY();
+        int player2X = player2.GetX();
+        int player2Y = player2.GetY();
 
+        // Collision-checking conditional from hell
+        if (ballNextY < buffer ||
+            ballNextY > height ||
+            (ballNextX <= player1X && player1Y <= ballNextY && ballNextY <= player1Y + player1.GetTail()) ||
+            (ballNextX >= player2X && player2Y <= ballNextY && ballNextY <= player2Y + player2.GetTail())
+        )
+        {
             if (ballNextY < buffer)
             {
                 //About to hit the top
@@ -68,23 +93,41 @@ class Model
                 ball.SetVelocityY(-1 * ballVelocityY);
             }
 
-            if (ballNextX < 0)
+            if (ballNextX <= player1X && player1Y <= ballNextY && ballNextY <= player1Y + player1.GetTail())
             {
-                //About to score on player 1
-                ball.SetX(0);
+                //About to bounce off player 1
+                ball.SetX(player1.GetX() + 1);
                 ball.SetVelocityX(-1 * ballVelocityX);
             }
-            else if (ballNextX > width)
+            else if (ballNextX >= player2X && player2Y <= ballNextY && ballNextY <= player2Y + player2.GetTail())
+            {
+                //about to bounce off player 2
+                ball.SetX(player2.GetX() - 1);
+                ball.SetVelocityX(-1 * ballVelocityX);
+            }
+
+            ball.SetBounce(true);
+        }
+
+        if (!ball.HasBounce())
+        {
+            if (ballNextX <= 0)
+            {
+                //about to score on player 1
+                ball.SetX(0);
+                ball.SetVelocity([0, 0]);
+            }
+            else if (ballNextX >= width)
             {
                 //about to score on player 2
                 ball.SetX(width);
-                ball.SetVelocityX(-1 * ballVelocityX);
+                ball.SetVelocity([0, 0]);
             }
-
-            return;
+            else
+            {
+                ball.Move();
+            }
         }
-
-        ball.Move();
     }
 
     public bool HasWinner()
@@ -144,7 +187,7 @@ class Model
         {
             int newY = y + yMove;
 
-            if (buffer < newY && newY < height)
+            if (buffer <= newY && newY <= height)
             {
                 oldY = y;
                 y = newY;
@@ -171,7 +214,6 @@ class Model
             return oldY;
         }
 
-
         public int GetLength()
         {
             return length;
@@ -195,6 +237,8 @@ class Model
 
     public class Ball(int x, int y, double velocityX, double velocityY)
     {
+        private double initialX = x;
+        private double initialY = y;
         private double x = x;
         private double y = y;
         private double oldX = x;
@@ -211,6 +255,12 @@ class Model
             y += velocityY;
         }
 
+        public void Reset()
+        {
+            SetPosition(ballStartPosX, ballStartPosY);
+            SetVelocity(ballStartVelocity);
+        }
+
         public void SetBounce(bool hasBounced)
         {
             bounced = hasBounced;
@@ -218,6 +268,8 @@ class Model
 
         public void SetPosition(int newX, int newY)
         {
+            oldX = x;
+            oldY = y;
             x = newX;
             y = newY;
 
@@ -225,11 +277,13 @@ class Model
 
         public void SetX(int newX)
         {
+            oldX = x;
             x = newX;
         }
 
         public void SetY(int newY)
         {
+            oldY = y;
             y = newY;
         }
 
