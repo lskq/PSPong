@@ -14,9 +14,10 @@ class Controller(Model model, View view)
             int[] input = GetPlayerMovement();
             model.Step(input[0], input[1]);
             view.Step();
-        } while (!model.HasWinner());
+        } while (!model.HasWinner() && !Keyboard.IsKeyDown(Key.Escape));
 
-        view.ShowVictoryMessage();
+        view.ShowEndMessage();
+        Thread.Sleep(100);
 
         do { } while (!Keyboard.IsKeyDown(Key.Escape));
 

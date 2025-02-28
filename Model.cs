@@ -20,81 +20,71 @@ class Model
 
     private Player player1 = new(player1StartPosX, playersStartPosY, playerLength, "Player 1");
     private Player player2 = new(player2StartPosX, playersStartPosY, playerLength, "Player 2");
-    private Ball ball = new(ballStartPosX, ballStartPosY, ballStartVelocity);
+    private Ball ball = new(ballStartPosX, ballStartPosY, ballStartVelocity[0], ballStartVelocity[1]);
 
     public void Step(int player1Delta, int player2Delta)
     {
         player1.Move(player1Delta);
         player2.Move(player2Delta);
-        ball.Move();
-
-        CheckCollision();
+        MoveBall();
     }
 
     public void ResetBall()
     {
         ball.SetPosition(ballStartPosX, ballStartPosY);
-        ball.SetVelocity(ballStartVelocity);
+        ball.SetVelocityX(ballStartVelocity[0]);
+        ball.SetVelocityY(ballStartVelocity[1]);
     }
 
-    public void CheckCollision()
+    public void MoveBall()
     {
-        bool bounce = false;
-        int ballPosX = ball.GetNextX();
-        int ballPosY = ball.GetNextY();
+        int ballNextX = ball.GetNextX();
+        int ballNextY = ball.GetNextY();
 
-        if (buffer >= ballPosY || ballPosY >= height)
+        double ballVelocityX = ball.GetVelocityX();
+        double ballVelocityY = ball.GetVelocityY();
+
+        if (ball.HasBounce())
         {
-            //bounced off the top or bottom
-            double[] oldVelocity = ball.GetVelocity();
-            double[] newVelocity = [oldVelocity[0], -1 * oldVelocity[1]];
+            ball.Move();
+            ball.SetBounce(false);
+            return;
+        }
 
-            ball.SetVelocity(newVelocity);
+        if (ballNextY < buffer || ballNextY > height || ballNextX < 0 || ballNextX > width)
+        {
+            ball.SetBounce(true);
+
+            if (ballNextY < buffer)
+            {
+                //About to hit the top
+                ball.SetY(buffer);
+                ball.SetVelocityY(-1 * ballVelocityY);
+            }
+            else if (ballNextY > height)
+            {
+                //About to hit the bottom
+                ball.SetY(height);
+                ball.SetVelocityY(-1 * ballVelocityY);
+            }
+
+            if (ballNextX < 0)
+            {
+                //About to score on player 1
+                ball.SetX(0);
+                ball.SetVelocityX(-1 * ballVelocityX);
+            }
+            else if (ballNextX > width)
+            {
+                //about to score on player 2
+                ball.SetX(width);
+                ball.SetVelocityX(-1 * ballVelocityX);
+            }
 
             return;
         }
 
-        if (ballPosX <= player1.GetX())
-        {
-            int y = player1.GetY();
-            if (y <= ballPosY && ballPosY <= y + player1.GetTail())
-            {
-                //bounced off player 1
-                bounce = true;
-            }
-            else
-            {
-                //scored on player 1
-                player2.IncrementScore();
-                ResetBall();
-                return;
-            }
-        }
-
-        if (ballPosX >= player2.GetX())
-        {
-            int y = player2.GetY();
-            if (y <= ballPosY && ballPosY <= y + player2.GetTail())
-            {
-                //bounced off player 2
-                bounce = true;
-            }
-            else
-            {
-                //scored on player 2
-                player1.IncrementScore();
-                ResetBall();
-                return;
-            }
-        }
-
-        if (bounce)
-        {
-            double[] oldVelocity = ball.GetVelocity();
-            double[] newVelocity = [-1 * oldVelocity[0], oldVelocity[1]];
-
-            ball.SetVelocity(newVelocity);
-        }
+        ball.Move();
     }
 
     public bool HasWinner()
@@ -105,7 +95,7 @@ class Model
         }
         return false;
     }
-    public string GetWinner()
+    public string? GetWinner()
     {
         if (player1.GetScore() >= winningScore)
         {
@@ -117,7 +107,7 @@ class Model
         }
         else
         {
-            return "None";
+            return null;
         }
     }
 
@@ -203,20 +193,27 @@ class Model
         }
     }
 
-    public class Ball(int x, int y, double[] velocity)
+    public class Ball(int x, int y, double velocityX, double velocityY)
     {
         private double x = x;
         private double y = y;
         private double oldX = x;
         private double oldY = y;
-        private double[] velocity = velocity;
+        private double velocityX = velocityX;
+        private double velocityY = velocityY;
+        private bool bounced = false;
 
         public void Move()
         {
             oldX = x;
             oldY = y;
-            x += velocity[0];
-            y += velocity[1];
+            x += velocityX;
+            y += velocityY;
+        }
+
+        public void SetBounce(bool hasBounced)
+        {
+            bounced = hasBounced;
         }
 
         public void SetPosition(int newX, int newY)
@@ -226,19 +223,45 @@ class Model
 
         }
 
+        public void SetX(int newX)
+        {
+            x = newX;
+        }
+
+        public void SetY(int newY)
+        {
+            y = newY;
+        }
+
         public void SetVelocity(double[] newVelocity)
         {
-            velocity = newVelocity;
+            velocityX = newVelocity[0];
+            velocityY = newVelocity[1];
+        }
+
+        public void SetVelocityX(double newVelocityX)
+        {
+            velocityX = newVelocityX;
+        }
+
+        public void SetVelocityY(double newVelocityY)
+        {
+            velocityY = newVelocityY;
+        }
+
+        public bool HasBounce()
+        {
+            return bounced;
         }
 
         public int GetNextX()
         {
-            return (int)(x + velocity[0]);
+            return (int)(x + velocityX);
         }
 
         public int GetNextY()
         {
-            return (int)(y + velocity[1]);
+            return (int)(y + velocityY);
         }
 
         public int GetX()
@@ -263,7 +286,17 @@ class Model
 
         public double[] GetVelocity()
         {
-            return velocity;
+            return [velocityX, velocityY];
+        }
+
+        public double GetVelocityX()
+        {
+            return velocityX;
+        }
+
+        public double GetVelocityY()
+        {
+            return velocityY;
         }
     }
 }

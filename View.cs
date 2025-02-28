@@ -60,14 +60,22 @@ class View(Model model)
         Thread.Sleep(stepRate);
     }
 
-    public void ShowVictoryMessage()
+    public void ShowEndMessage()
     {
-        string winner = model.GetWinner();
+        string? winner = model.GetWinner();
+        string endMessage = "";
 
-        string victoryMessage = $"{winner} wins!";
+        if (winner != null)
+        {
+            endMessage = $"{winner} wins!";
+        }
+        else
+        {
+            endMessage = "Game aborted. Press esc again to quit.";
+        }
 
-        Console.SetCursorPosition((width / 2) - victoryMessage.Length / 2, height / 2);
-        Console.WriteLine(victoryMessage);
+        Console.SetCursorPosition((width / 2) - endMessage.Length / 2, height / 2);
+        Console.WriteLine(endMessage);
 
     }
 
