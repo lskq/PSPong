@@ -16,12 +16,12 @@ class Model
     static private int ballStartPosX = width / 2;
     static private int ballStartPosY = height / 2;
 
-    static private double baseXVelocity = width / 100.0;
-    static private double baseYVelocity = height / 10.0;
+    static private double baseXSpeed = width / 100.0;
+    static private double baseYSpeed = height / 20.0;
 
     private Player player1 = new(player1StartPosX, playersStartPosY, playerLength, "Player 1");
     private Player player2 = new(player2StartPosX, playersStartPosY, playerLength, "Player 2");
-    private Ball ball = new(ballStartPosX, ballStartPosY, baseXVelocity, baseYVelocity);
+    private Ball ball = new(ballStartPosX, ballStartPosY);
 
     public void Step(int player1Delta, int player2Delta)
     {
@@ -103,24 +103,21 @@ class Model
             ball.SetBounce(true);
         }
 
-        if (!ball.HasBounce())
+        if (ballNextX <= 0)
         {
-            if (ballNextX <= 0)
-            {
-                //about to score on player 1
-                ball.SetX(0);
-                ball.SetVelocity([0, 0]);
-            }
-            else if (ballNextX >= width)
-            {
-                //about to score on player 2
-                ball.SetX(width);
-                ball.SetVelocity([0, 0]);
-            }
-            else
-            {
-                ball.Move();
-            }
+            //about to score on player 1
+            ball.SetX(0);
+            ball.SetVelocity([0, 0]);
+        }
+        else if (ballNextX >= width)
+        {
+            //about to score on player 2
+            ball.SetX(width);
+            ball.SetVelocity([0, 0]);
+        }
+        else if (!ball.HasBounce())
+        {
+            ball.Move();
         }
     }
 
@@ -229,14 +226,14 @@ class Model
         }
     }
 
-    public class Ball(int x, int y, double velocityX, double velocityY)
+    public class Ball(int x, int y)
     {
         private double x = x;
         private double y = y;
         private double oldX = x;
         private double oldY = y;
-        private double velocityX = velocityX;
-        private double velocityY = velocityY;
+        private double velocityX = 0;
+        private double velocityY = 0;
         private bool bounced = false;
 
         public void Move()
@@ -256,8 +253,8 @@ class Model
         {
             Random random = new();
 
-            velocityX = baseXVelocity * (random.NextDouble() + 0.5) * (random.Next(2) == 0 ? -2 : 2);
-            velocityY = baseYVelocity * (random.NextDouble() + 0.5) * (random.Next(2) == 0 ? -1 : 1);
+            velocityX = baseXSpeed * (random.NextDouble() + 1) * (random.Next(2) == 0 ? -1 : 1);
+            velocityY = baseYSpeed * (random.NextDouble() + 1) * (random.Next(2) == 0 ? -1 : 1);
         }
 
         public void SetBounce(bool hasBounced)
