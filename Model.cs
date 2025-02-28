@@ -29,13 +29,6 @@ class Model
         MoveBall();
     }
 
-    public void ResetBall()
-    {
-        ball.SetPosition(ballStartPosX, ballStartPosY);
-        ball.SetVelocityX(ballStartVelocity[0]);
-        ball.SetVelocityY(ballStartVelocity[1]);
-    }
-
     public void MoveBall()
     {
         int ballX = ball.GetX();
@@ -187,7 +180,7 @@ class Model
         {
             int newY = y + yMove;
 
-            if (buffer <= newY && newY <= height)
+            if (buffer <= newY && newY <= height - length + 1)
             {
                 oldY = y;
                 y = newY;
@@ -237,8 +230,6 @@ class Model
 
     public class Ball(int x, int y, double velocityX, double velocityY)
     {
-        private double initialX = x;
-        private double initialY = y;
         private double x = x;
         private double y = y;
         private double oldX = x;
@@ -249,8 +240,7 @@ class Model
 
         public void Move()
         {
-            oldX = x;
-            oldY = y;
+            RememberPosition();
             x += velocityX;
             y += velocityY;
         }
@@ -258,7 +248,15 @@ class Model
         public void Reset()
         {
             SetPosition(ballStartPosX, ballStartPosY);
-            SetVelocity(ballStartVelocity);
+            SetRandomVelocity();
+        }
+
+        public void SetRandomVelocity()
+        {
+            Random random = new();
+
+            velocityX = (random.NextDouble() + 1) * (random.Next(2) == 0 ? -2 : 2);
+            velocityY = (random.NextDouble() + 1) * (random.Next(2) == 0 ? -1 : 1);
         }
 
         public void SetBounce(bool hasBounced)
@@ -266,10 +264,15 @@ class Model
             bounced = hasBounced;
         }
 
-        public void SetPosition(int newX, int newY)
+        public void RememberPosition()
         {
             oldX = x;
             oldY = y;
+        }
+
+        public void SetPosition(int newX, int newY)
+        {
+            RememberPosition();
             x = newX;
             y = newY;
 
@@ -277,13 +280,13 @@ class Model
 
         public void SetX(int newX)
         {
-            oldX = x;
+            RememberPosition();
             x = newX;
         }
 
         public void SetY(int newY)
         {
-            oldY = y;
+            RememberPosition();
             y = newY;
         }
 

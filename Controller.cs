@@ -9,6 +9,8 @@ class Controller(Model model, View view)
 
     public void Play()
     {
+        model.GetBall().SetRandomVelocity();
+
         do
         {
             int[] input = GetPlayerMovement();

@@ -8,7 +8,7 @@ class View(Model model)
     static char ballIcon = '@';
     static char empty = ' ';
 
-    static int rate = 50;
+    static int rate = 60;
 
     int height = model.GetHeight();
     int width = model.GetWidth();
