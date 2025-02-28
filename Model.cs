@@ -16,11 +16,12 @@ class Model
     static private int ballStartPosX = width / 2;
     static private int ballStartPosY = height / 2;
 
-    static private double[] ballStartVelocity = [2.0, 0.0];
+    static private double baseXVelocity = width / 100.0;
+    static private double baseYVelocity = height / 10.0;
 
     private Player player1 = new(player1StartPosX, playersStartPosY, playerLength, "Player 1");
     private Player player2 = new(player2StartPosX, playersStartPosY, playerLength, "Player 2");
-    private Ball ball = new(ballStartPosX, ballStartPosY, ballStartVelocity[0], ballStartVelocity[1]);
+    private Ball ball = new(ballStartPosX, ballStartPosY, baseXVelocity, baseYVelocity);
 
     public void Step(int player1Delta, int player2Delta)
     {
@@ -255,8 +256,8 @@ class Model
         {
             Random random = new();
 
-            velocityX = (random.NextDouble() + 1) * (random.Next(2) == 0 ? -2 : 2);
-            velocityY = (random.NextDouble() + 1) * (random.Next(2) == 0 ? -1 : 1);
+            velocityX = baseXVelocity * (random.NextDouble() + 0.5) * (random.Next(2) == 0 ? -2 : 2);
+            velocityY = baseYVelocity * (random.NextDouble() + 0.5) * (random.Next(2) == 0 ? -1 : 1);
         }
 
         public void SetBounce(bool hasBounced)
