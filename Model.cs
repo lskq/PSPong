@@ -68,39 +68,36 @@ class Model
         int player2Y = player2.GetY();
 
         // Collision-checking conditional from hell
-        if (ballNextY < buffer ||
-            ballNextY > height ||
-            (ballNextX <= player1X && player1Y <= ballNextY && ballNextY <= player1Y + player1.GetTail()) ||
-            (ballNextX >= player2X && player2Y <= ballNextY && ballNextY <= player2Y + player2.GetTail())
-        )
+        if (ballNextY < buffer)
         {
-            if (ballNextY < buffer)
-            {
-                //About to hit the top
-                ball.SetY(buffer);
-                ball.SetVelocityY(-1 * ballVelocityY);
-            }
-            else if (ballNextY > height)
-            {
-                //About to hit the bottom
-                ball.SetY(height);
-                ball.SetVelocityY(-1 * ballVelocityY);
-            }
-
-            if (ballNextX <= player1X && player1Y <= ballNextY && ballNextY <= player1Y + player1.GetTail())
-            {
-                //About to bounce off player 1
-                ball.SetX(player1.GetX() + 1);
-                ball.SetVelocityX(-1 * ballVelocityX);
-            }
-            else if (ballNextX >= player2X && player2Y <= ballNextY && ballNextY <= player2Y + player2.GetTail())
-            {
-                //about to bounce off player 2
-                ball.SetX(player2.GetX() - 1);
-                ball.SetVelocityX(-1 * ballVelocityX);
-            }
-
+            //About to hit the top
+            ball.SetY(buffer);
+            ball.SetVelocityY(-1 * ballVelocityY);
             ball.SetBounce(true);
+        }
+        else if (ballNextY > height)
+        {
+            //About to hit the bottom
+            ball.SetY(height);
+            ball.SetVelocityY(-1 * ballVelocityY);
+            ball.SetBounce(true);
+        }
+
+        if (ballNextX <= player1X && player1Y <= ballNextY && ballNextY <= player1Y + player1.GetTail())
+        {
+            //About to bounce off player 1
+            ball.SetX(player1.GetX() + 1);
+            ball.SetVelocityX(-1 * ballVelocityX);
+            ball.SetBounce(true);
+            return;
+        }
+        else if (ballNextX >= player2X && player2Y <= ballNextY && ballNextY <= player2Y + player2.GetTail())
+        {
+            //about to bounce off player 2
+            ball.SetX(player2.GetX() - 1);
+            ball.SetVelocityX(-1 * ballVelocityX);
+            ball.SetBounce(true);
+            return;
         }
 
         if (ballNextX <= 0)
@@ -337,11 +334,6 @@ class Model
         public int GetOldY()
         {
             return (int)oldY;
-        }
-
-        public double[] GetVelocity()
-        {
-            return [velocityX, velocityY];
         }
 
         public double GetVelocityX()
