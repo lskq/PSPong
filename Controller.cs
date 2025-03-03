@@ -9,14 +9,14 @@ class Controller(Model model, View view)
 
     public void Play()
     {
-        model.GetBall().SetRandomVelocity();
+        model.Ball1.SetRandomVelocity();
 
         do
         {
             int[] input = GetPlayerMovement();
             model.Step(input[0], input[1]);
             view.Step();
-        } while (!model.HasWinner() && !Keyboard.IsKeyDown(Key.Escape));
+        } while (model.Winner() == null && !Keyboard.IsKeyDown(Key.Escape));
 
         view.ShowEndMessage();
         Thread.Sleep(100);

@@ -1,140 +1,137 @@
+using System.ComponentModel;
+using System.Dynamic;
+using System.Security.Cryptography.X509Certificates;
+
 namespace PSPong;
 
-class Model
+internal class Model()
 {
-    static private int buffer = 1;
-    static private int height = Console.WindowHeight - 1;
-    static private int width = Console.WindowWidth - 1;
+    static public int Buffer { get; } = 1;
+    static public int Height { get; } = Console.WindowHeight - 1;
+    static public int Width { get; } = Console.WindowWidth - 1;
 
-    static private int playerLength = 3;
-    static private int winningScore = 3;
+    static int PlayerLength { get; } = 3;
 
-    static private int player1StartPosX = 1;
-    static private int player2StartPosX = width - 1;
-    static private int playersStartPosY = (height / 2) - 1;
+    static public int Player1StartPosX { get; } = 1;
+    static public int Player2StartPosX { get; } = Width - 1;
+    static public int PlayersStartPosY { get; } = (Height / 2) - 1;
 
-    static private int ballStartPosX = width / 2;
-    static private int ballStartPosY = height / 2;
+    static public int BallStartPosX { get; } = Width / 2;
+    static public int BallStartPosY { get; } = Height / 2;
 
-    static private double baseXSpeed = width / 100.0;
-    static private double baseYSpeed = height / 20.0;
+    static double BaseXSpeed { get; } = Width / 100.0;
+    static public double BaseYSpeed { get; } = Height / 20.0;
 
-    private Player player1 = new(player1StartPosX, playersStartPosY, playerLength, "Player 1");
-    private Player player2 = new(player2StartPosX, playersStartPosY, playerLength, "Player 2");
-    private Ball ball = new(ballStartPosX, ballStartPosY);
+    public int WinningScore { get; set; } = 3;
+
+    public Player Player1 { get; init; } = new(Player1StartPosX, PlayersStartPosY, "Player 1");
+    public Player Player2 { get; init; } = new(Player2StartPosX, PlayersStartPosY, "Player 2");
+    public Ball Ball1 { get; init; } = new();
 
     public void Step(int player1Delta, int player2Delta)
     {
-        player1.Move(player1Delta);
-        player2.Move(player2Delta);
+        Player1.Move(player1Delta);
+        Player2.Move(player2Delta);
         MoveBall();
     }
 
     public void MoveBall()
     {
-        int ballX = ball.GetX();
+        int ballX = (int)Ball1.X;
 
         if (ballX == 0)
         {
             //scored on player 1
-            player2.IncrementScore();
-            ball.Reset();
+            Player2.Score += 1; ;
+            Ball1.Reset();
             return;
         }
-        else if (ballX == width)
+        else if (ballX == Width)
         {
             //scored on player2
-            player1.IncrementScore();
-            ball.Reset();
+            Player1.Score += 1; ;
+            Ball1.Reset();
             return;
         }
 
-        int ballNextX = ball.GetNextX();
-        int ballNextY = ball.GetNextY();
+        int ballNextX = (int)Ball1.NextX;
+        int ballNextY = (int)Ball1.NextY;
 
-        double ballVelocityX = ball.GetVelocityX();
-        double ballVelocityY = ball.GetVelocityY();
+        double ballVelocityX = Ball1.VelocityX;
+        double ballVelocityY = Ball1.VelocityY;
 
-        if (ball.HasBounce())
+        if (Ball1.Bounced)
         {
-            ball.Move();
-            ball.SetBounce(false);
+            Ball1.Move();
+            Ball1.Bounced = true;
             return;
         }
 
-        int player1X = player1.GetX();
-        int player1Y = player1.GetY();
-        int player2X = player2.GetX();
-        int player2Y = player2.GetY();
+        int player1X = Player1.X;
+        int player1Y = Player1.Y;
+        int player2X = Player2.X;
+        int player2Y = Player2.Y;
 
         // Collision-checking conditional from hell
-        if (ballNextY < buffer)
+        if (ballNextY < Buffer)
         {
             //About to hit the top
-            ball.SetY(buffer);
-            ball.SetVelocityY(-1 * ballVelocityY);
-            ball.SetBounce(true);
+            Ball1.MoveY(Buffer);
+            Ball1.VelocityY = -1 * ballVelocityY;
+            Ball1.Bounced = true;
         }
-        else if (ballNextY > height)
+        else if (ballNextY > Height)
         {
             //About to hit the bottom
-            ball.SetY(height);
-            ball.SetVelocityY(-1 * ballVelocityY);
-            ball.SetBounce(true);
+            Ball1.MoveY(Height);
+            Ball1.VelocityY = -1 * ballVelocityY;
+            Ball1.Bounced = true;
         }
 
-        if (ballNextX <= player1X && player1Y <= ballNextY && ballNextY <= player1Y + player1.GetTail())
+        if (ballNextX <= player1X && player1Y <= ballNextY && ballNextY <= player1Y + Player1.Tail)
         {
             //About to bounce off player 1
-            ball.SetX(player1.GetX() + 1);
-            ball.SetVelocityX(-1 * ballVelocityX);
-            ball.SetBounce(true);
+            Ball1.MoveX(Player1.X + 1);
+            Ball1.VelocityX = -1 * ballVelocityX;
+            Ball1.Bounced = true;
             return;
         }
-        else if (ballNextX >= player2X && player2Y <= ballNextY && ballNextY <= player2Y + player2.GetTail())
+        else if (ballNextX >= player2X && player2Y <= ballNextY && ballNextY <= player2Y + Player2.Tail)
         {
             //about to bounce off player 2
-            ball.SetX(player2.GetX() - 1);
-            ball.SetVelocityX(-1 * ballVelocityX);
-            ball.SetBounce(true);
+            Ball1.MoveX(Player2.X - 1);
+            Ball1.VelocityX = -1 * ballVelocityX;
+            Ball1.Bounced = true;
             return;
         }
 
         if (ballNextX <= 0)
         {
             //about to score on player 1
-            ball.SetX(0);
-            ball.SetVelocity([0, 0]);
+            Ball1.MoveX(0);
+            Ball1.ChangeVelocity([0, 0]);
         }
-        else if (ballNextX >= width)
+        else if (ballNextX >= Width)
         {
             //about to score on player 2
-            ball.SetX(width);
-            ball.SetVelocity([0, 0]);
+            Ball1.MoveX(Width);
+            Ball1.ChangeVelocity([0, 0]);
         }
-        else if (!ball.HasBounce())
+        else if (!Ball1.Bounced)
         {
-            ball.Move();
+            Ball1.Move();
         }
     }
 
-    public bool HasWinner()
+    public string? Winner()
     {
-        if (player1.GetScore() >= winningScore || player2.GetScore() >= winningScore)
+        if (Player1.Score >= WinningScore)
         {
-            return true;
+            return Player1.Name;
         }
-        return false;
-    }
-    public string? GetWinner()
-    {
-        if (player1.GetScore() >= winningScore)
+        if (Player2.Score >= WinningScore)
         {
-            return player1.GetName();
-        }
-        if (player2.GetScore() >= winningScore)
-        {
-            return player2.GetName();
+            return Player2.Name;
         }
         else
         {
@@ -142,208 +139,104 @@ class Model
         }
     }
 
-    public Player[] GetPlayers()
+    public Player[] Players()
     {
-        return [player1, player2];
+        return [Player1, Player2];
     }
 
-    public Ball GetBall()
+    public class Player(int x, int y, string name)
     {
-        return ball;
-    }
+        public int X { get; set; } = x;
+        public int Y { get; set; } = y;
+        public int OldY { get; set; } = y;
+        public string Name { get; init; } = name;
+        public int Length { get; init; } = PlayerLength;
+        public int Score { get; set; } = 0;
 
-    public int GetHeight()
-    {
-        return height;
-    }
-
-    public int GetWidth()
-    {
-        return width;
-    }
-
-    public class Player(int x, int y, int length, string name)
-    {
-        private int x = x;
-        private int y = y;
-        private int oldY = y;
-        private int length = length;
-        private string name = name;
-        private int score = 0;
+        public int Tail => Length - 1;
 
         public void Move(int yMove)
         {
-            int newY = y + yMove;
+            int newY = Y + yMove;
 
-            if (buffer <= newY && newY <= height - length + 1)
+            if (Buffer <= newY && newY <= Height - Length + 1)
             {
-                oldY = y;
-                y = newY;
+                OldY = Y;
+                Y = newY;
             }
-        }
-
-        public void IncrementScore()
-        {
-            score++;
-        }
-
-        public int GetX()
-        {
-            return x;
-        }
-
-        public int GetY()
-        {
-            return y;
-        }
-
-        public int GetOldY()
-        {
-            return oldY;
-        }
-
-        public int GetLength()
-        {
-            return length;
-        }
-
-        public int GetTail()
-        {
-            return length - 1;
-        }
-
-        public string GetName()
-        {
-            return name;
-        }
-
-        public int GetScore()
-        {
-            return score;
         }
     }
 
-    public class Ball(int x, int y)
+    public class Ball
     {
-        private double x = x;
-        private double y = y;
-        private double oldX = x;
-        private double oldY = y;
-        private double velocityX = 0;
-        private double velocityY = 0;
-        private bool bounced = false;
+        public Ball()
+        {
+            Reset();
+        }
+
+        public double X { get; set; }
+        public double Y { get; set; }
+        public double OldX { get; set; }
+        public double OldY { get; set; }
+        public double VelocityX { get; set; }
+        public double VelocityY { get; set; }
+        public bool Bounced { get; set; }
+
+        public double NextX => X + VelocityX;
+        public double NextY => Y + VelocityY;
 
         public void Move()
         {
             RememberPosition();
-            x += velocityX;
-            y += velocityY;
+            X += VelocityX;
+            Y += VelocityY;
         }
 
         public void Reset()
         {
-            SetPosition(ballStartPosX, ballStartPosY);
+            SetPosition(BallStartPosX, BallStartPosY);
             SetRandomVelocity();
+            Bounced = false;
         }
 
         public void SetRandomVelocity()
         {
             Random random = new();
 
-            velocityX = baseXSpeed * (random.NextDouble() + 1) * (random.Next(2) == 0 ? -1 : 1);
-            velocityY = baseYSpeed * (random.NextDouble() + 1) * (random.Next(2) == 0 ? -1 : 1);
-        }
-
-        public void SetBounce(bool hasBounced)
-        {
-            bounced = hasBounced;
+            VelocityX = BaseXSpeed * (random.NextDouble() + 1) * (random.Next(2) == 0 ? -1 : 1);
+            VelocityY = BaseYSpeed * (random.NextDouble() + 1) * (random.Next(2) == 0 ? -1 : 1);
         }
 
         public void RememberPosition()
         {
-            oldX = x;
-            oldY = y;
+            OldX = X;
+            OldY = Y;
         }
 
         public void SetPosition(int newX, int newY)
         {
             RememberPosition();
-            x = newX;
-            y = newY;
+            X = newX;
+            Y = newY;
 
         }
 
-        public void SetX(int newX)
+        public void MoveX(int newX)
         {
             RememberPosition();
-            x = newX;
+            X = newX;
         }
 
-        public void SetY(int newY)
+        public void MoveY(int newY)
         {
             RememberPosition();
-            y = newY;
+            Y = newY;
         }
 
-        public void SetVelocity(double[] newVelocity)
+        public void ChangeVelocity(double[] newVelocity)
         {
-            velocityX = newVelocity[0];
-            velocityY = newVelocity[1];
-        }
-
-        public void SetVelocityX(double newVelocityX)
-        {
-            velocityX = newVelocityX;
-        }
-
-        public void SetVelocityY(double newVelocityY)
-        {
-            velocityY = newVelocityY;
-        }
-
-        public bool HasBounce()
-        {
-            return bounced;
-        }
-
-        public int GetNextX()
-        {
-            return (int)(x + velocityX);
-        }
-
-        public int GetNextY()
-        {
-            return (int)(y + velocityY);
-        }
-
-        public int GetX()
-        {
-            return (int)x;
-        }
-
-        public int GetY()
-        {
-            return (int)y;
-        }
-
-        public int GetOldX()
-        {
-            return (int)oldX;
-        }
-
-        public int GetOldY()
-        {
-            return (int)oldY;
-        }
-
-        public double GetVelocityX()
-        {
-            return velocityX;
-        }
-
-        public double GetVelocityY()
-        {
-            return velocityY;
+            VelocityX = newVelocity[0];
+            VelocityY = newVelocity[1];
         }
     }
 }

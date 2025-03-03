@@ -10,22 +10,22 @@ class View(Model model)
 
     static int rate = 60;
 
-    int height = model.GetHeight();
-    int width = model.GetWidth();
+    int height = Model.Height;
+    int width = Model.Width;
 
-    Model.Player[] players = model.GetPlayers();
-    Model.Ball ball = model.GetBall();
+    Model.Player[] players = model.Players();
+    Model.Ball ball = model.Ball1;
 
     public void Step()
     {
         foreach (Model.Player player in players)
         {
-            int x = player.GetX();
+            int x = player.X;
 
-            int oldY = player.GetOldY();
-            int currentY = player.GetY();
+            int oldY = player.OldY;
+            int currentY = player.Y;
 
-            int tail = player.GetLength() - 1;
+            int tail = player.Tail;
 
             if (currentY > oldY)
             {
@@ -43,11 +43,11 @@ class View(Model model)
             }
         }
 
-        int oldBallX = ball.GetOldX();
-        int oldBallY = ball.GetOldY();
+        int oldBallX = (int)ball.OldX;
+        int oldBallY = (int)ball.OldY;
 
-        int currentBallX = ball.GetX();
-        int currentBallY = ball.GetY();
+        int currentBallX = (int)ball.X;
+        int currentBallY = (int)ball.Y;
 
         if (oldBallX != currentBallX || oldBallY != currentBallY)
         {
@@ -64,7 +64,7 @@ class View(Model model)
 
     public void ShowEndMessage()
     {
-        string? winner = model.GetWinner();
+        string? winner = model.Winner();
         string endMessage = "";
 
         if (winner != null)
@@ -85,11 +85,11 @@ class View(Model model)
     {
         int x = width / 4;
         Console.SetCursorPosition(x, 0);
-        Console.Write(players[0].GetScore());
+        Console.Write(players[0].Score);
 
         x = width * 3 / 4;
         Console.SetCursorPosition(x, 0);
-        Console.Write(players[1].GetScore());
+        Console.Write(players[1].Score);
     }
     public void SetUp()
     {
@@ -98,17 +98,17 @@ class View(Model model)
 
         foreach (Model.Player player in players)
         {
-            int y = player.GetY();
-            int length = player.GetLength();
+            int y = player.Y;
+            int length = player.Length;
 
             for (int i = y; i < y + length; i++)
             {
-                Console.SetCursorPosition(player.GetX(), i);
+                Console.SetCursorPosition(player.X, i);
                 Console.Write(playerIcon);
             }
         }
 
-        Console.SetCursorPosition(ball.GetX(), ball.GetY());
+        Console.SetCursorPosition((int)ball.X, (int)ball.Y);
         Console.Write(ballIcon);
 
         UpdateScore();
