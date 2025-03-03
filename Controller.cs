@@ -2,10 +2,16 @@ using System.Windows.Input;
 
 namespace PSPong;
 
-internal class Controller(Model model, View view)
+internal class Controller
 {
-    public Model Model { get; init; } = model;
-    public View View { get; init; } = view;
+    public Controller()
+    {
+        Model = new();
+        View = new(Model);
+    }
+
+    public Model Model { get; init; }
+    public View View { get; init; }
 
     public void Play()
     {
