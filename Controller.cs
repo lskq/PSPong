@@ -2,23 +2,23 @@ using System.Windows.Input;
 
 namespace PSPong;
 
-class Controller(Model model, View view)
+internal class Controller(Model model, View view)
 {
-    Model model = model;
-    View view = view;
+    public Model Model { get; init; } = model;
+    public View View { get; init; } = view;
 
     public void Play()
     {
-        model.Ball1.SetRandomVelocity();
+        Model.Ball1.SetRandomVelocity();
 
         do
         {
-            int[] input = GetPlayerMovement();
-            model.Step(input[0], input[1]);
-            view.Step();
-        } while (model.Winner() == null && !Keyboard.IsKeyDown(Key.Escape));
+            int[] input = PlayerMovement();
+            Model.Step(input[0], input[1]);
+            View.Step();
+        } while (Model.Winner() == null && !Keyboard.IsKeyDown(Key.Escape));
 
-        view.ShowEndMessage();
+        View.ShowEndMessage();
         Thread.Sleep(100);
 
         do { } while (!Keyboard.IsKeyDown(Key.Escape));
@@ -26,7 +26,7 @@ class Controller(Model model, View view)
         View.TearDown();
     }
 
-    public int[] GetPlayerMovement()
+    static public int[] PlayerMovement()
     {
         int player1YDelta = 0;
         int player2YDelta = 0;
