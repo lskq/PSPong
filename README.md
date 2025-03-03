@@ -1,4 +1,4 @@
-A (very) rough implementation of Pong for PowerShell.
+A (very) rough implementation of Pong for Windows terminals.
 
 Requirements: Windows 10+, Dotnet 8.
 
