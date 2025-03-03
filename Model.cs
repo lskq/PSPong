@@ -1,7 +1,3 @@
-using System.ComponentModel;
-using System.Dynamic;
-using System.Security.Cryptography.X509Certificates;
-
 namespace PSPong;
 
 internal class Model()
@@ -63,7 +59,7 @@ internal class Model()
         if (Ball1.Bounced)
         {
             Ball1.Move();
-            Ball1.Bounced = true;
+            Ball1.Bounced = false;
             return;
         }
 
@@ -77,14 +73,14 @@ internal class Model()
         {
             //About to hit the top
             Ball1.MoveY(Buffer);
-            Ball1.VelocityY = -1 * ballVelocityY;
+            Ball1.VelocityY *= -1;
             Ball1.Bounced = true;
         }
         else if (ballNextY > Height)
         {
             //About to hit the bottom
             Ball1.MoveY(Height);
-            Ball1.VelocityY = -1 * ballVelocityY;
+            Ball1.VelocityY *= -1;
             Ball1.Bounced = true;
         }
 
@@ -92,7 +88,7 @@ internal class Model()
         {
             //About to bounce off player 1
             Ball1.MoveX(Player1.X + 1);
-            Ball1.VelocityX = -1 * ballVelocityX;
+            Ball1.VelocityX *= -1;
             Ball1.Bounced = true;
             return;
         }
@@ -100,7 +96,7 @@ internal class Model()
         {
             //about to bounce off player 2
             Ball1.MoveX(Player2.X - 1);
-            Ball1.VelocityX = -1 * ballVelocityX;
+            Ball1.VelocityX *= -1;
             Ball1.Bounced = true;
             return;
         }
