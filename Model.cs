@@ -2,21 +2,21 @@ namespace PSPong;
 
 internal class Model()
 {
-    static public int Buffer { get; } = 1;
-    static public int Height { get; } = Console.WindowHeight - 1;
-    static public int Width { get; } = Console.WindowWidth - 1;
+    public static int Buffer { get; } = 1;
+    public static int Height { get; } = Console.WindowHeight - 1;
+    public static int Width { get; } = Console.WindowWidth - 1;
 
-    static int PlayerLength { get; } = 3;
+    public static int PlayerLength { get; } = 3;
 
-    static public int Player1StartPosX { get; } = 1;
-    static public int Player2StartPosX { get; } = Width - 1;
-    static public int PlayersStartPosY { get; } = (Height / 2) - 1;
+    public static int Player1StartPosX { get; } = 1;
+    public static int Player2StartPosX { get; } = Width - 1;
+    public static int PlayersStartPosY { get; } = (Height / 2) - 1;
 
-    static public int BallStartPosX { get; } = Width / 2;
-    static public int BallStartPosY { get; } = Height / 2;
+    public static int BallStartPosX { get; } = Width / 2;
+    public static int BallStartPosY { get; } = Height / 2;
 
-    static double BaseXSpeed { get; } = Width / 100.0;
-    static public double BaseYSpeed { get; } = Height / 20.0;
+    public static double BaseXSpeed { get; } = Width / 100.0;
+    public static double BaseYSpeed { get; } = Height / 20.0;
 
     public int WinningScore { get; set; } = 3;
 
@@ -50,12 +50,6 @@ internal class Model()
             return;
         }
 
-        int ballNextX = (int)Ball1.NextX;
-        int ballNextY = (int)Ball1.NextY;
-
-        double ballVelocityX = Ball1.VelocityX;
-        double ballVelocityY = Ball1.VelocityY;
-
         if (Ball1.Bounced)
         {
             Ball1.Move();
@@ -65,8 +59,12 @@ internal class Model()
 
         int player1X = Player1.X;
         int player1Y = Player1.Y;
+
         int player2X = Player2.X;
         int player2Y = Player2.Y;
+
+        int ballNextX = (int)Ball1.NextX;
+        int ballNextY = (int)Ball1.NextY;
 
         // Collision-checking conditional from hell
         if (ballNextY < Buffer)
