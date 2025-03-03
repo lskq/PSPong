@@ -2,23 +2,34 @@ using System.Windows.Input;
 
 namespace PSPong;
 
-class View(Model model)
+internal class View
 {
-    static char playerIcon = '#';
-    static char ballIcon = '@';
-    static char empty = ' ';
+    public View(Model model)
+    {
+        Model = model;
 
-    static int rate = 60;
+        Players = Model.Players();
+        Ball = Model.Ball1;
 
-    int height = Model.Height;
-    int width = Model.Width;
+        SetUp();
+    }
 
-    Model.Player[] players = model.Players();
-    Model.Ball ball = model.Ball1;
+    public static char PlayerIcon { get; } = '#';
+    public static char BallIcon { get; } = '@';
+    public static char EmptyIcon { get; } = ' ';
+
+    static int UpdateRate { get; } = 60;
+
+    static int Height { get; } = Model.Height;
+    static int Width { get; } = Model.Width;
+
+    public Model Model;
+    public Model.Player[] Players;
+    public Model.Ball Ball;
 
     public void Step()
     {
-        foreach (Model.Player player in players)
+        foreach (Model.Player player in Players)
         {
             int x = player.X;
 
@@ -30,41 +41,41 @@ class View(Model model)
             if (currentY > oldY)
             {
                 Console.SetCursorPosition(x, oldY);
-                Console.Write(empty);
+                Console.Write(EmptyIcon);
                 Console.SetCursorPosition(x, currentY + tail);
-                Console.Write(playerIcon);
+                Console.Write(PlayerIcon);
             }
             else if (currentY < oldY)
             {
                 Console.SetCursorPosition(x, oldY + tail);
-                Console.Write(empty);
+                Console.Write(EmptyIcon);
                 Console.SetCursorPosition(x, currentY);
-                Console.Write(playerIcon);
+                Console.Write(PlayerIcon);
             }
         }
 
-        int oldBallX = (int)ball.OldX;
-        int oldBallY = (int)ball.OldY;
+        int oldBallX = (int)Ball.OldX;
+        int oldBallY = (int)Ball.OldY;
 
-        int currentBallX = (int)ball.X;
-        int currentBallY = (int)ball.Y;
+        int currentBallX = (int)Ball.X;
+        int currentBallY = (int)Ball.Y;
 
         if (oldBallX != currentBallX || oldBallY != currentBallY)
         {
             Console.SetCursorPosition(oldBallX, oldBallY);
-            Console.Write(empty);
+            Console.Write(EmptyIcon);
             Console.SetCursorPosition(currentBallX, currentBallY);
-            Console.Write(ballIcon);
+            Console.Write(BallIcon);
         }
 
         UpdateScore();
 
-        Thread.Sleep(rate);
+        Thread.Sleep(UpdateRate);
     }
 
     public void ShowEndMessage()
     {
-        string? winner = model.Winner();
+        string? winner = Model.Winner();
         string endMessage = "";
 
         if (winner != null)
@@ -76,27 +87,27 @@ class View(Model model)
             endMessage = "Game aborted. Press esc again to quit.";
         }
 
-        Console.SetCursorPosition((width / 2) - endMessage.Length / 2, height / 2);
+        Console.SetCursorPosition((Width / 2) - endMessage.Length / 2, Height / 2);
         Console.WriteLine(endMessage);
 
     }
 
     public void UpdateScore()
     {
-        int x = width / 4;
+        int x = Width / 4;
         Console.SetCursorPosition(x, 0);
-        Console.Write(players[0].Score);
+        Console.Write(Players[0].Score);
 
-        x = width * 3 / 4;
+        x = Width * 3 / 4;
         Console.SetCursorPosition(x, 0);
-        Console.Write(players[1].Score);
+        Console.Write(Players[1].Score);
     }
     public void SetUp()
     {
         Console.Clear();
         Console.CursorVisible = false;
 
-        foreach (Model.Player player in players)
+        foreach (Model.Player player in Players)
         {
             int y = player.Y;
             int length = player.Length;
@@ -104,17 +115,17 @@ class View(Model model)
             for (int i = y; i < y + length; i++)
             {
                 Console.SetCursorPosition(player.X, i);
-                Console.Write(playerIcon);
+                Console.Write(PlayerIcon);
             }
         }
 
-        Console.SetCursorPosition((int)ball.X, (int)ball.Y);
-        Console.Write(ballIcon);
+        Console.SetCursorPosition((int)Ball.X, (int)Ball.Y);
+        Console.Write(BallIcon);
 
         UpdateScore();
     }
 
-    public void TearDown()
+    static public void TearDown()
     {
         Console.Clear();
         Console.CursorVisible = true;

@@ -23,7 +23,7 @@ class Controller(Model model, View view)
 
         do { } while (!Keyboard.IsKeyDown(Key.Escape));
 
-        view.TearDown();
+        View.TearDown();
     }
 
     public int[] GetPlayerMovement()

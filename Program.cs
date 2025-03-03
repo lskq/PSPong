@@ -5,11 +5,10 @@ class Program
     [STAThread]
     static void Main(string[] args)
     {
-        Model model = new Model();
-        View view = new View(model);
-        view.SetUp();
+        Model model = new();
+        View view = new(model);
 
-        Controller controller = new Controller(model, view);
+        Controller controller = new(model, view);
         controller.Play();
     }
 }
